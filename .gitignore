@@ -1,0 +1,29 @@
+﻿# Testbed specific ignores
+artifacts/
+fixtures-generated/
+oracle/secrets-registry.json
+secrets-registry.json
+*.user
+
+# Build and IDE artifacts (.NET)
+bin/
+obj/
+.vs/
+.idea/
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS artifacts
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
