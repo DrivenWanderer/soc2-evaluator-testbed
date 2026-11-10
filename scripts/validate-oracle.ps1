@@ -194,13 +194,15 @@ $validDetections = @('required', 'best-effort', 'environment-dependent')
     $issues = $oracle.issues; if (-not $issues) { $issues = @() }
 Write-Host "`n--- Validating Issues (Count: $($issues.Count)) ---" -ForegroundColor Cyan
 
-# Future-proofing: State-aware assertions on issues count
-if ($oracle.repoState -eq 'stage0-bootstrap' -or $oracle.repoState -like 'stage*-wip*') {
+# State-aware assertions on issues count
+if ($oracle.repoState -eq 'stage0-bootstrap') {
     if ($issues.Count -eq 0) {
         Add-Success "Issues list is empty (valid for Stage 0 bootstrap)"
     } else {
         Add-Warning "Stage 0 is expected to have an empty issues list, but found $($issues.Count) issues."
     }
+} elseif ($oracle.repoState -like 'stage*-wip*') {
+    Add-Success "Issues count is $($issues.Count) (in-progress stage $($oracle.repoState))"
 } else {
     if ($issues.Count -eq 0) {
         Add-Error "repoState is '$($oracle.repoState)' but issues list is empty. Seeded issues are required for non-bootstrap stages."
@@ -252,6 +254,8 @@ foreach ($issue in $issues) {
         $fileContent = Get-Content -Path $fullFile -Raw
         if (-not $fileContent.Contains($anchor)) {
             Add-Error "Issue '$id' anchor text '$anchor' not found in file '$relFile'"
+        } else {
+            Add-Success "Issue '$id' file '$relFile' anchor verified"
         }
     }
 }
@@ -455,6 +459,7 @@ if ($errors.Count -gt 0) {
 
 Write-Host "`nValidation PASSED." -ForegroundColor Green
 exit 0
+
 
 
 

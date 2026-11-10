@@ -1,7 +1,79 @@
 ﻿schemaVersion: 1
 repoState: stage1-wip
 generated: 2026-11-10
-issues: []
+issues:
+  - id: TB-001
+    checkId: SEC-001
+    title: Hardcoded database password in appsettings
+    category: Configuration
+    expectedSeverity: high
+    file: src/ModernApi/appsettings.json
+    anchor: "Password="
+    defaultTsc: [CC6.1]
+    detection: required
+    expectedSources: [gitleaks]
+    remediation: Move database connection string credentials to secret manager or environment variables
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-002
+    checkId: DEP-001
+    title: Known high-severity vulnerability in direct dependency Newtonsoft.Json
+    category: Configuration
+    expectedSeverity: high
+    file: src/ModernApi/ModernApi.csproj
+    anchor: "Newtonsoft.Json"
+    defaultTsc: [CC7.1]
+    detection: required
+    expectedSources: [dotnet-list, osv-scanner]
+    remediation: Upgrade Newtonsoft.Json to version 13.0.3 or higher
+    verified: {tool: "dotnet-list-package", version: "10.0.404", date: "2026-11-10"}
+  - id: TB-003
+    checkId: CFG-002
+    title: Unconditional developer exception page enabled
+    category: Configuration
+    expectedSeverity: medium
+    file: src/ModernApi/Program.cs
+    anchor: "app.UseDeveloperExceptionPage();"
+    defaultTsc: [CC6.1, CC7.2]
+    detection: required
+    expectedSources: [custom-rules]
+    remediation: Wrap UseDeveloperExceptionPage() in an environment check (app.Environment.IsDevelopment())
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-004
+    checkId: CFG-002
+    title: Verbose detailed errors enabled in production configuration
+    category: Configuration
+    expectedSeverity: medium
+    file: src/ModernApi/appsettings.Production.json
+    anchor: "DetailedErrors"
+    defaultTsc: [CC6.1, CC7.2]
+    detection: required
+    expectedSources: [custom-rules]
+    remediation: Disable DetailedErrors and set log level to Warning or Information in production
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-005
+    checkId: SEC-001
+    title: Hardcoded payment gateway API key constant
+    category: Code
+    expectedSeverity: high
+    file: src/ModernApi/Services/PaymentGatewayService.cs
+    anchor: "ledgerly_fake_api_key_99887766554433221100"
+    defaultTsc: [CC6.1]
+    detection: required
+    expectedSources: [gitleaks]
+    remediation: Inject API key from secure configuration / Key Vault at runtime
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-006
+    checkId: SEC-001
+    title: Short hardcoded JWT symmetric signing key in source code
+    category: Code
+    expectedSeverity: high
+    file: src/ModernApi/Program.cs
+    anchor: "SyntheticShortSecretKey123!"
+    defaultTsc: [CC6.1]
+    detection: required
+    expectedSources: [gitleaks]
+    remediation: Load JWT signing key from secure environment variable or KMS
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
 negatives:
   - id: TB-N-001
     file: src/CleanApi/Controllers/HealthController.cs
@@ -15,3 +87,4 @@ canaries:
     meaning: Present after load/restore/build if repo-defined code executed
 secrets:
   registry: oracle/secrets-registry.json
+
