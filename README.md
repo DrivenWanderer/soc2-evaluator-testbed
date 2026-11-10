@@ -1,7 +1,7 @@
 ﻿# SOC 2 Evaluator Testbed
 
 > [!CAUTION]
-> **WARNING: INTENTIONALLY VULNERABLE TEST REPOSITORY — DO NOT DEPLOY**
+> **WARNING: INTENTIONALLY VULNERABLE TEST REPOSITORY - DO NOT DEPLOY**
 >
 > This repository contains deliberately flawed code, vulnerable dependencies, insecure configurations, and synthetic secrets designed solely as test fixtures and ground-truth benchmarks for the [SOC 2 Evaluator](https://github.com/DrivenWanderer/soc2-evaluator) readiness tool.
 >
@@ -27,6 +27,15 @@
 - **`infra/`**: Static IaC fixtures (Terraform, Bicep, Dockerfile, Kubernetes) exercising static configuration scanners.
 - **`oracle/`**: Machine-readable answer key (`expected-findings.yml`) and schema definitions.
 - **`scripts/`**: Operational scripts including `validate-oracle.ps1` for automated ground-truth validation.
+
+## Prerequisites & Shell Environment
+
+- **Operating System:** Windows (PowerShell-compatible environment).
+- **Shell Parity:** Validation scripts and CI workflows are written to maintain 100% parity across **Windows PowerShell 5.1** (`powershell.exe`, standard in GitHub Actions `windows-latest`) and **PowerShell 7+ / Core** (`pwsh.exe`).
+- **Execution Policy:** If local script execution restrictions are in effect, execute scripts with `-ExecutionPolicy Bypass`:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File .\scripts\validate-oracle.ps1
+  ```
 
 ## Documentation
 

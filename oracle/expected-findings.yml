@@ -1,0 +1,8 @@
+﻿schemaVersion: 1
+repoState: stage0-bootstrap
+generated: 2026-11-10
+issues: []
+negatives: []
+canaries: []
+secrets:
+  registry: oracle/secrets-registry.json

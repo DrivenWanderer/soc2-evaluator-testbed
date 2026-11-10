@@ -1,0 +1,27 @@
+﻿name: Validate Oracle Answer Key
+
+on:
+  push:
+    branches:
+      - main
+      - 'stage-*/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate-oracle:
+    name: Validate Oracle and Answer Key
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Oracle Validator
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\scripts\validate-oracle.ps1
