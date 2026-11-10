@@ -2,7 +2,12 @@
 repoState: stage1-wip
 generated: 2026-11-10
 issues: []
-negatives: []
+negatives:
+  - id: TB-N-001
+    file: src/CleanApi/Controllers/HealthController.cs
+    anchor: "[AllowAnonymous]"
+    mustNotFlag: [SEC-003]
+    why: Legitimate anonymous health endpoint
 canaries:
   - id: TB-C-001
     project: src/CanaryProject

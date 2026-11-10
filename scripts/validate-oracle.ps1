@@ -297,6 +297,8 @@ foreach ($neg in $negatives) {
         $fileContent = Get-Content -Path $fullFile -Raw
         if (-not $fileContent.Contains($anchor)) {
             Add-Error "Negative '$id' anchor text '$anchor' not found in file '$relFile'"
+        } else {
+            Add-Success "Negative '$id' file '$relFile' anchor verified"
         }
     }
 }
