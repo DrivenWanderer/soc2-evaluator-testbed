@@ -404,7 +404,7 @@ if (Test-Path $templatePath) {
 Write-Host "`n--- Scanning for Unregistered / Accidental Live Credentials ---" -ForegroundColor Cyan
 
 $excludedDirs = @('.git', 'artifacts', 'fixtures-generated', '.vs', 'bin', 'obj', 'node_modules')
-$excludedFiles = @('validate-oracle.ps1', 'secrets-registry.schema.md', 'secrets-registry.template.json', 'plan.md', 'README.md')
+$excludedFiles = @('validate-oracle.ps1', 'secrets-registry.json', 'secrets-registry.schema.md', 'secrets-registry.template.json', 'plan.md', 'README.md')
 
 $patterns = @(
     @{ Name = "AWS Access Key"; Pattern = 'AKIA[0-9A-Z]{16}' },
@@ -459,6 +459,7 @@ if ($errors.Count -gt 0) {
 
 Write-Host "`nValidation PASSED." -ForegroundColor Green
 exit 0
+
 
 
 

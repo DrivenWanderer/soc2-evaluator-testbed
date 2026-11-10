@@ -1,5 +1,5 @@
 ﻿schemaVersion: 1
-repoState: stage1-wip
+repoState: stage1-flawed
 generated: 2026-11-10
 issues:
   - id: TB-001
@@ -147,4 +147,5 @@ canaries:
     meaning: Present after load/restore/build if repo-defined code executed
 secrets:
   registry: oracle/secrets-registry.json
+
 
