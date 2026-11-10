@@ -4,7 +4,7 @@
 
 | Stage | Name | Status |
 |---|---|---|
-| **Stage 0** | **Bootstrap and conventions** | **Completed (Ready for Review)** |
+| **Stage 0** | **Bootstrap and conventions** | **Completed (PR #1 Open)** |
 | Stage 1 | Legacy + Core solutions, secrets, dependencies, debug config, canary | Planned (Next) |
 | Stage 2 | Code flaws, pipelines, suppressions | Planned |
 | Stage 3 | Runtime behavior, IaC, non-.NET | Planned |
@@ -30,6 +30,9 @@
 - [x] **Task 5: Finalize documentation and Stage 0 exit review**
   - *Deliverable:* `docs/progress.md` and `docs/decisions.md` capturing full Stage 0 history and exit checklist.
   - *Verification:* Self-review against Definition of Done checklist.
+- [x] **Follow-up: Review Feedback Refinements**
+  - *Deliverable:* Added `oracle/secrets-registry.template.json`, state-aware validation assertions in `validate-oracle.ps1`, and shell environment parity documentation in `README.md`.
+  - *Verification:* Validator verified both template structure and empty Stage 0 constraints.
 
 ---
 

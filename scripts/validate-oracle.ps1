@@ -194,6 +194,19 @@ $validDetections = @('required', 'best-effort', 'environment-dependent')
 $issues = if ($oracle.issues) { @($oracle.issues) } else { @() }
 Write-Host "`n--- Validating Issues (Count: $($issues.Count)) ---" -ForegroundColor Cyan
 
+# Future-proofing: State-aware assertions on issues count
+if ($oracle.repoState -eq 'stage0-bootstrap') {
+    if ($issues.Count -eq 0) {
+        Add-Success "Issues list is empty (valid for Stage 0 bootstrap)"
+    } else {
+        Add-Warning "Stage 0 is expected to have an empty issues list, but found $($issues.Count) issues."
+    }
+} else {
+    if ($issues.Count -eq 0) {
+        Add-Error "repoState is '$($oracle.repoState)' but issues list is empty. Seeded issues are required for non-bootstrap stages."
+    }
+}
+
 foreach ($issue in $issues) {
     $id = $issue['id']
     if ([string]::IsNullOrWhiteSpace($id)) {
@@ -243,15 +256,15 @@ foreach ($issue in $issues) {
     }
 }
 
-if ($issues.Count -eq 0) {
-    Add-Success "Issues list is empty (valid for Stage 0)"
-}
-
 # -------------------------------------------------------------
 # 4. Validate Negatives and Traps
 # -------------------------------------------------------------
 $negatives = if ($oracle.negatives) { @($oracle.negatives) } else { @() }
 Write-Host "`n--- Validating Negatives (Count: $($negatives.Count)) ---" -ForegroundColor Cyan
+
+if ($oracle.repoState -eq 'stage0-bootstrap' -and $negatives.Count -eq 0) {
+    Add-Success "Negatives list is empty (valid for Stage 0 bootstrap)"
+}
 
 foreach ($neg in $negatives) {
     $id = $neg['id']
@@ -288,15 +301,15 @@ foreach ($neg in $negatives) {
     }
 }
 
-if ($negatives.Count -eq 0) {
-    Add-Success "Negatives list is empty (valid for Stage 0)"
-}
-
 # -------------------------------------------------------------
 # 5. Validate Canaries
 # -------------------------------------------------------------
 $canaries = if ($oracle.canaries) { @($oracle.canaries) } else { @() }
 Write-Host "`n--- Validating Canaries (Count: $($canaries.Count)) ---" -ForegroundColor Cyan
+
+if ($oracle.repoState -eq 'stage0-bootstrap' -and $canaries.Count -eq 0) {
+    Add-Success "Canaries list is empty (valid for Stage 0 bootstrap)"
+}
 
 foreach ($canary in $canaries) {
     $id = $canary['id']
@@ -323,12 +336,8 @@ foreach ($canary in $canaries) {
     }
 }
 
-if ($canaries.Count -eq 0) {
-    Add-Success "Canaries list is empty (valid for Stage 0)"
-}
-
 # -------------------------------------------------------------
-# 6. Validate Secrets Registry
+# 6. Validate Secrets Registry and Template
 # -------------------------------------------------------------
 Write-Host "`n--- Validating Secrets Registry ---" -ForegroundColor Cyan
 $registryRelPath = if ($oracle.secrets -and $oracle.secrets['registry']) { $oracle.secrets['registry'] } else { $null }
@@ -366,13 +375,28 @@ if (-not $registryRelPath) {
     }
 }
 
+# Validate secrets-registry.template.json if present
+$templatePath = Join-Path $RepoRoot "oracle\secrets-registry.template.json"
+if (Test-Path $templatePath) {
+    try {
+        $tmpl = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
+        if (-not $tmpl.secrets) {
+            Add-Error "Template at oracle/secrets-registry.template.json missing 'secrets' array"
+        } else {
+            Add-Success "Secrets registry template exists and has valid JSON structure"
+        }
+    } catch {
+        Add-Error "Failed to parse oracle/secrets-registry.template.json: $_"
+    }
+}
+
 # -------------------------------------------------------------
 # 7. Accidental Live Credential Scan Guard
 # -------------------------------------------------------------
 Write-Host "`n--- Scanning for Unregistered / Accidental Live Credentials ---" -ForegroundColor Cyan
 
 $excludedDirs = @('.git', 'artifacts', 'fixtures-generated', '.vs', 'bin', 'obj', 'node_modules')
-$excludedFiles = @('validate-oracle.ps1', 'secrets-registry.schema.md', 'plan.md', 'README.md')
+$excludedFiles = @('validate-oracle.ps1', 'secrets-registry.schema.md', 'secrets-registry.template.json', 'plan.md', 'README.md')
 
 $patterns = @(
     @{ Name = "AWS Access Key"; Pattern = 'AKIA[0-9A-Z]{16}' },
