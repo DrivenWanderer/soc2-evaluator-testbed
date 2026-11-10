@@ -1,8 +1,12 @@
 ﻿schemaVersion: 1
-repoState: stage0-bootstrap
+repoState: stage1-wip
 generated: 2026-11-10
 issues: []
 negatives: []
-canaries: []
+canaries:
+  - id: TB-C-001
+    project: src/CanaryProject
+    marker: artifacts/canary/executed.txt
+    meaning: Present after load/restore/build if repo-defined code executed
 secrets:
   registry: oracle/secrets-registry.json
