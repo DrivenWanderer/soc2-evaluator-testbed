@@ -1,55 +1,7 @@
 ﻿schemaVersion: 1
-repoState: stage1-flawed
+repoState: stage1-remediated
 generated: 2026-11-10
 issues:
-  - id: TB-001
-    checkId: SEC-001
-    title: Hardcoded database password in appsettings
-    category: Configuration
-    expectedSeverity: high
-    file: src/ModernApi/appsettings.json
-    anchor: "Password="
-    defaultTsc: [CC6.1]
-    detection: required
-    expectedSources: [gitleaks]
-    remediation: Move database connection string credentials to secret manager or environment variables
-    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
-  - id: TB-002
-    checkId: DEP-001
-    title: Known high-severity vulnerability in direct dependency Newtonsoft.Json
-    category: Configuration
-    expectedSeverity: high
-    file: src/ModernApi/ModernApi.csproj
-    anchor: "Newtonsoft.Json"
-    defaultTsc: [CC7.1]
-    detection: required
-    expectedSources: [dotnet-list, osv-scanner]
-    remediation: Upgrade Newtonsoft.Json to version 13.0.3 or higher
-    verified: {tool: "dotnet-list-package", version: "10.0.404", date: "2026-11-10"}
-  - id: TB-003
-    checkId: CFG-002
-    title: Unconditional developer exception page enabled
-    category: Configuration
-    expectedSeverity: medium
-    file: src/ModernApi/Program.cs
-    anchor: "app.UseDeveloperExceptionPage();"
-    defaultTsc: [CC6.1, CC7.2]
-    detection: required
-    expectedSources: [custom-rules]
-    remediation: Wrap UseDeveloperExceptionPage() in an environment check (app.Environment.IsDevelopment())
-    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
-  - id: TB-004
-    checkId: CFG-002
-    title: Verbose detailed errors enabled in production configuration
-    category: Configuration
-    expectedSeverity: medium
-    file: src/ModernApi/appsettings.Production.json
-    anchor: "DetailedErrors"
-    defaultTsc: [CC6.1, CC7.2]
-    detection: required
-    expectedSources: [custom-rules]
-    remediation: Disable DetailedErrors and set log level to Warning or Information in production
-    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
   - id: TB-005
     checkId: SEC-001
     title: Hardcoded payment gateway API key constant
@@ -98,30 +50,6 @@ issues:
     expectedSources: [gitleaks]
     remediation: Externalize connection string to encrypted config section or secure vault
     verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
-  - id: TB-009
-    checkId: CFG-002
-    title: ASP.NET compilation debug mode enabled in web.config
-    category: Configuration
-    expectedSeverity: medium
-    file: src/LegacyPortal/web.config
-    anchor: '<compilation debug="true"'
-    defaultTsc: [CC6.1, CC7.2]
-    detection: required
-    expectedSources: [custom-rules]
-    remediation: Set compilation debug=\"false\" in production web.config
-    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
-  - id: TB-010
-    checkId: CFG-002
-    title: ASP.NET customErrors mode Off in web.config
-    category: Configuration
-    expectedSeverity: medium
-    file: src/LegacyPortal/web.config
-    anchor: '<customErrors mode="Off"'
-    defaultTsc: [CC6.1, CC7.2]
-    detection: required
-    expectedSources: [custom-rules]
-    remediation: Set customErrors mode=\"On\" or \"RemoteOnly\"
-    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
   - id: TB-011
     checkId: CFG-002
     title: Remote ASP.NET page trace enabled in web.config
@@ -132,7 +60,19 @@ issues:
     defaultTsc: [CC6.1, CC7.2]
     detection: required
     expectedSources: [custom-rules]
-    remediation: Disable trace or set localOnly=\"true\"
+    remediation: Disable trace or set localOnly="true"
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-012
+    checkId: SEC-001
+    title: Hardcoded internal service secret token (regression)
+    category: Code
+    expectedSeverity: high
+    file: src/ModernApi/Services/InternalSyncService.cs
+    anchor: "SyntheticRegressionSecretToken456!"
+    defaultTsc: [CC6.1]
+    detection: required
+    expectedSources: [gitleaks]
+    remediation: Remove hardcoded token and use mTLS or token service
     verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
 negatives:
   - id: TB-N-001
@@ -147,5 +87,3 @@ canaries:
     meaning: Present after load/restore/build if repo-defined code executed
 secrets:
   registry: oracle/secrets-registry.json
-
-

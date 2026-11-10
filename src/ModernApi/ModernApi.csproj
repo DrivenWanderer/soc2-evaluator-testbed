@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- TESTBED-SEED TB-002: Intentionally vulnerable package (DEP-001) -->
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <!-- Remediated: Upgraded to secure, advisory-free version -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>
