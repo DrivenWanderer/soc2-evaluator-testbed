@@ -74,6 +74,66 @@ issues:
     expectedSources: [gitleaks]
     remediation: Load JWT signing key from secure environment variable or KMS
     verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-007
+    checkId: DEP-001
+    title: Vulnerable legacy packages in packages.config
+    category: Configuration
+    expectedSeverity: high
+    file: src/LegacyPortal/packages.config
+    anchor: "Newtonsoft.Json"
+    defaultTsc: [CC7.1]
+    detection: best-effort
+    expectedSources: [osv-scanner]
+    remediation: Migrate to PackageReference and update packages to secure versions
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-008
+    checkId: SEC-001
+    title: Hardcoded SQL connection string in web.config
+    category: Configuration
+    expectedSeverity: high
+    file: src/LegacyPortal/web.config
+    anchor: "Password=LegacyPortalFakeSqlPassword2026#"
+    defaultTsc: [CC6.1]
+    detection: required
+    expectedSources: [gitleaks]
+    remediation: Externalize connection string to encrypted config section or secure vault
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-009
+    checkId: CFG-002
+    title: ASP.NET compilation debug mode enabled in web.config
+    category: Configuration
+    expectedSeverity: medium
+    file: src/LegacyPortal/web.config
+    anchor: '<compilation debug="true"'
+    defaultTsc: [CC6.1, CC7.2]
+    detection: required
+    expectedSources: [custom-rules]
+    remediation: Set compilation debug=\"false\" in production web.config
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-010
+    checkId: CFG-002
+    title: ASP.NET customErrors mode Off in web.config
+    category: Configuration
+    expectedSeverity: medium
+    file: src/LegacyPortal/web.config
+    anchor: '<customErrors mode="Off"'
+    defaultTsc: [CC6.1, CC7.2]
+    detection: required
+    expectedSources: [custom-rules]
+    remediation: Set customErrors mode=\"On\" or \"RemoteOnly\"
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
+  - id: TB-011
+    checkId: CFG-002
+    title: Remote ASP.NET page trace enabled in web.config
+    category: Configuration
+    expectedSeverity: low
+    file: src/LegacyPortal/web.config
+    anchor: '<trace enabled="true"'
+    defaultTsc: [CC6.1, CC7.2]
+    detection: required
+    expectedSources: [custom-rules]
+    remediation: Disable trace or set localOnly=\"true\"
+    verified: {tool: "validate-oracle.ps1", version: "1.0", date: "2026-11-10"}
 negatives:
   - id: TB-N-001
     file: src/CleanApi/Controllers/HealthController.cs
