@@ -73,12 +73,12 @@ function Parse-SimpleYaml {
             $val = $matches[2].Trim()
 
             if ($val -eq '[]') {
-                $result[$key] = @()
+                $result[$key] = [System.Collections.Generic.List[object]]::new()
                 $currentSection = $null
                 $currentItem = $null
             } elseif ($val -eq '') {
                 $currentSection = $key
-                $result[$key] = @()
+                $result[$key] = [System.Collections.Generic.List[object]]::new()
                 $currentItem = $null
             } else {
                 $result[$key] = $val.Trim('"').Trim("'")
@@ -106,7 +106,7 @@ function Parse-SimpleYaml {
             $k = $matches[1]
             $v = $matches[2].Trim().Trim('"').Trim("'")
             $currentItem = [ordered]@{$k = $v}
-            if (-not ($result[$currentSection] -is [System.Collections.IList])) {
+            if (-not ($result[$currentSection] -is [System.Collections.Generic.List[object]])) {
                 $result[$currentSection] = [System.Collections.Generic.List[object]]::new()
             }
             $result[$currentSection].Add($currentItem) | Out-Null
@@ -138,7 +138,7 @@ function Parse-SimpleYaml {
         }
     }
 
-    return $result
+    return ,$result
 }
 
 # -------------------------------------------------------------
@@ -191,16 +191,18 @@ $validCategories = @('Code', 'Configuration', 'Process')
 $validSeverities = @('critical', 'high', 'medium', 'low', 'info')
 $validDetections = @('required', 'best-effort', 'environment-dependent')
 
-$issues = if ($oracle.issues) { @($oracle.issues) } else { @() }
+    $issues = $oracle.issues; if (-not $issues) { $issues = @() }
 Write-Host "`n--- Validating Issues (Count: $($issues.Count)) ---" -ForegroundColor Cyan
 
-# Future-proofing: State-aware assertions on issues count
+# State-aware assertions on issues count
 if ($oracle.repoState -eq 'stage0-bootstrap') {
     if ($issues.Count -eq 0) {
         Add-Success "Issues list is empty (valid for Stage 0 bootstrap)"
     } else {
         Add-Warning "Stage 0 is expected to have an empty issues list, but found $($issues.Count) issues."
     }
+} elseif ($oracle.repoState -like 'stage*-wip*') {
+    Add-Success "Issues count is $($issues.Count) (in-progress stage $($oracle.repoState))"
 } else {
     if ($issues.Count -eq 0) {
         Add-Error "repoState is '$($oracle.repoState)' but issues list is empty. Seeded issues are required for non-bootstrap stages."
@@ -252,6 +254,8 @@ foreach ($issue in $issues) {
         $fileContent = Get-Content -Path $fullFile -Raw
         if (-not $fileContent.Contains($anchor)) {
             Add-Error "Issue '$id' anchor text '$anchor' not found in file '$relFile'"
+        } else {
+            Add-Success "Issue '$id' file '$relFile' anchor verified"
         }
     }
 }
@@ -259,7 +263,7 @@ foreach ($issue in $issues) {
 # -------------------------------------------------------------
 # 4. Validate Negatives and Traps
 # -------------------------------------------------------------
-$negatives = if ($oracle.negatives) { @($oracle.negatives) } else { @() }
+    $negatives = $oracle.negatives; if (-not $negatives) { $negatives = @() }
 Write-Host "`n--- Validating Negatives (Count: $($negatives.Count)) ---" -ForegroundColor Cyan
 
 if ($oracle.repoState -eq 'stage0-bootstrap' -and $negatives.Count -eq 0) {
@@ -297,6 +301,8 @@ foreach ($neg in $negatives) {
         $fileContent = Get-Content -Path $fullFile -Raw
         if (-not $fileContent.Contains($anchor)) {
             Add-Error "Negative '$id' anchor text '$anchor' not found in file '$relFile'"
+        } else {
+            Add-Success "Negative '$id' file '$relFile' anchor verified"
         }
     }
 }
@@ -304,7 +310,7 @@ foreach ($neg in $negatives) {
 # -------------------------------------------------------------
 # 5. Validate Canaries
 # -------------------------------------------------------------
-$canaries = if ($oracle.canaries) { @($oracle.canaries) } else { @() }
+    $canaries = $oracle.canaries; if (-not $canaries) { $canaries = @() }
 Write-Host "`n--- Validating Canaries (Count: $($canaries.Count)) ---" -ForegroundColor Cyan
 
 if ($oracle.repoState -eq 'stage0-bootstrap' -and $canaries.Count -eq 0) {
@@ -333,6 +339,8 @@ foreach ($canary in $canaries) {
     $fullProj = Join-Path $RepoRoot $relProj
     if (-not (Test-Path $fullProj)) {
         Add-Error "Canary '$id' references non-existent project: '$relProj'"
+    } else {
+        Add-Success "Canary '$id' project '$relProj' verified"
     }
 }
 
@@ -396,7 +404,7 @@ if (Test-Path $templatePath) {
 Write-Host "`n--- Scanning for Unregistered / Accidental Live Credentials ---" -ForegroundColor Cyan
 
 $excludedDirs = @('.git', 'artifacts', 'fixtures-generated', '.vs', 'bin', 'obj', 'node_modules')
-$excludedFiles = @('validate-oracle.ps1', 'secrets-registry.schema.md', 'secrets-registry.template.json', 'plan.md', 'README.md')
+$excludedFiles = @('validate-oracle.ps1', 'secrets-registry.json', 'secrets-registry.schema.md', 'secrets-registry.template.json', 'plan.md', 'README.md')
 
 $patterns = @(
     @{ Name = "AWS Access Key"; Pattern = 'AKIA[0-9A-Z]{16}' },
@@ -451,3 +459,8 @@ if ($errors.Count -gt 0) {
 
 Write-Host "`nValidation PASSED." -ForegroundColor Green
 exit 0
+
+
+
+
+

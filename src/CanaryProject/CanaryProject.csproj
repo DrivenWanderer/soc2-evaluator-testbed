@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <!-- TESTBED-SEED TB-C-001: Benign Canary target to detect repo-defined code execution -->
+  <Target Name="RecordCanaryExecution" BeforeTargets="BeforeBuild;BeforeCompile">
+    <PropertyGroup>
+      <CanaryArtifactsDir>$(MSBuildThisFileDirectory)..\..\artifacts\canary</CanaryArtifactsDir>
+      <CanaryMarkerFile>$(CanaryArtifactsDir)\executed.txt</CanaryMarkerFile>
+    </PropertyGroup>
+    <MakeDir Directories="$(CanaryArtifactsDir)" />
+    <WriteLinesToFile File="$(CanaryMarkerFile)" Lines="$([System.DateTime]::UtcNow.ToString('o'))" Overwrite="true" />
+  </Target>
+
+</Project>

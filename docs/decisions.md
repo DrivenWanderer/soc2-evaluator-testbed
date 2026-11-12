@@ -72,3 +72,22 @@ This log records every architectural decision, tool/dependency approval, and con
   - Option B: Squash merges.
 - **Owner's Decision:** Option A (default) approved.
 - **Action Taken:** Enforced non-fast-forward merge commit protocol for all feature branches into `main`.
+
+
+## 2026-11-10: Stage 1 Implementation Decisions
+
+### Decision: .NET SDK Version and Tooling Installation
+- **Question:** Which .NET SDK should be installed on the development host for `ModernApi`, `CleanApi`, and `CanaryProject`?
+- **Context:** The development host lacked a pre-installed .NET SDK. Non-elevated execution prevented `winget` installation.
+- **Resolution:** Downloaded and executed official `dotnet-install.ps1` to install .NET SDK 10.0.404 to user profile `C:\Users\perki\AppData\Local\Microsoft\dotnet`. Configured `global.json` pinning SDK version `10.0.404`.
+
+### Decision D3 Resolution: Legacy ASP.NET MVC 5 Build Toolchain
+- **Question:** How to proceed when Visual Studio Build Tools 2022 cannot be installed without elevation?
+- **Context:** Visual Studio Build Tools installer returned exit code 1602 (elevation required).
+- **Resolution:** Invoked the plan section 11 legacy fallback protocol: scaffolded `src/LegacyPortal` as an unbuilt static solution (`src/LegacyPortal.sln`, `LegacyPortal.csproj`, `packages.config`, `web.config`) targeting .NET Framework 4.8. All seeded flaws are verified via anchor validation in `scripts/validate-oracle.ps1`. Documented the constraint in `docs/limits.md`.
+
+### Decision: Pinned Vulnerable Dependency for DEP-001
+- **Question:** Which vulnerable package version should be pinned for DEP-001?
+- **Candidate Evaluated:** `Newtonsoft.Json 12.0.3` (MIT license).
+- **Verification:** Verified with `dotnet list package --vulnerable --include-transitive` which reported High severity advisory `GHSA-5crp-9r3c-p9vr` (CVE-2024-38063) producing build warning `NU1903`.
+- **Resolution:** Pinned `Newtonsoft.Json 12.0.3` in `src/ModernApi/ModernApi.csproj` and `src/LegacyPortal/packages.config`.
